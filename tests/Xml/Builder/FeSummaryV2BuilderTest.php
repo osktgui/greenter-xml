@@ -86,6 +86,7 @@ class FeSummaryV2BuilderTest extends \PHPUnit_Framework_TestCase
             ->setMtoOperGravadas(40)
             ->setMtoOperExoneradas(30)
             ->setMtoOperInafectas(120)
+            ->setMtoOperGratuitas(10)
             ->setMtoIGV(7.2)
             ->setMtoISC(2.8);
 
