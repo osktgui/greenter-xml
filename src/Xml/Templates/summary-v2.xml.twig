@@ -60,6 +60,16 @@
                     </cac:InvoiceDocumentReference>
                 </cac:BillingReference>
             {% endif %}
+            {% if det.percepcion %}
+                {% set perc = det.percepcion %}
+                <sac:SUNATPerceptionSummaryDocumentReference>
+                    <sac:SUNATPerceptionSystemCode>{{ perc.codReg }}</sac:SUNATPerceptionSystemCode>
+                    <sac:SUNATPerceptionPercent>{{ perc.tasa|n_format }}</sac:SUNATPerceptionPercent>
+                    <cbc:TotalInvoiceAmount currencyID="PEN">{{ perc.mto|n_format }}</cbc:TotalInvoiceAmount>
+                    <sac:SUNATTotalCashed currencyID="PEN">{{ perc.mtoTotal|n_format }}</sac:SUNATTotalCashed>
+                    {% if perc.mtoBase %}<cbc:TaxableAmount currencyID="PEN">{{ perc.mtoBase|n_format }}</cbc:TaxableAmount>{% endif %}
+                </sac:SUNATPerceptionSummaryDocumentReference>
+            {% endif %}
             <cac:Status>
                 <cbc:ConditionCode>{{ det.estado }}</cbc:ConditionCode>
             </cac:Status>
@@ -76,9 +86,20 @@
                 <cbc:PaidAmount currencyID="PEN">{{ det.mtoOperInafectas|n_format }}</cbc:PaidAmount>
                 <cbc:InstructionID>03</cbc:InstructionID>
             </sac:BillingPayment>
+            {% if det.mtoOperGratuitas %}
+                <sac:BillingPayment>
+                    <cbc:PaidAmount currencyID="PEN">{{ det.mtoOperGratuitas|n_format }}</cbc:PaidAmount>
+                    <cbc:InstructionID>04</cbc:InstructionID>
+                </sac:BillingPayment>
+            {% endif %}
             <cac:AllowanceCharge>
+                {% if det.mtoCargos %}
+                <cbc:ChargeIndicator>true</cbc:ChargeIndicator>
+                <cbc:Amount currencyID="PEN">{{ det.mtoCargos|n_format }}</cbc:Amount>
+                {% else %}
                 <cbc:ChargeIndicator>false</cbc:ChargeIndicator>
                 <cbc:Amount currencyID="PEN">{{ det.mtoDescuentos|default(0)|n_format }}</cbc:Amount>
+                {% endif %}
             </cac:AllowanceCharge>
             {% set igv = det.mtoIGV|n_format %}
             <cac:TaxTotal>

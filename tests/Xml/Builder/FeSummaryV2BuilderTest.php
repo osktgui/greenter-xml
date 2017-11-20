@@ -7,8 +7,10 @@
  */
 
 namespace Tests\Greenter\Xml\Builder;
+
 use Greenter\Model\Sale\Document;
 use Greenter\Model\Summary\SummaryDetailV2;
+use Greenter\Model\Summary\SummaryPerception;
 use Greenter\Model\Summary\SummaryV2;
 
 /**
@@ -55,6 +57,12 @@ class FeSummaryV2BuilderTest extends \PHPUnit_Framework_TestCase
             ->setSerieNro('B001-12')
             ->setClienteTipo('1')
             ->setClienteNro('44556677')
+            ->setPercepcion((new SummaryPerception())
+                ->setCodReg('01')
+                ->setTasa(2)
+                ->setMtoBase(100)
+                ->setMto(2)
+                ->setMtoTotal(102))
             ->setEstado('1')
             ->setDocReferencia((new Document())
                 ->setTipoDoc('03')
@@ -74,6 +82,7 @@ class FeSummaryV2BuilderTest extends \PHPUnit_Framework_TestCase
             ->setClienteNro('55667733')
             ->setEstado('1')
             ->setTotal(200)
+            ->setMtoCargos(1)
             ->setMtoOperGravadas(40)
             ->setMtoOperExoneradas(30)
             ->setMtoOperInafectas(120)
