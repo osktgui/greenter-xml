@@ -8,8 +8,10 @@
 
 namespace Tests\Greenter\Xml\Builder;
 
+use Greenter\Model\Sale\Document;
 use Greenter\Model\Summary\Summary;
 use Greenter\Model\Summary\SummaryDetail;
+use Greenter\Model\Summary\SummaryPerception;
 
 /**
  * Class FeSummaryBuilderTest
@@ -53,27 +55,40 @@ class FeSummaryBuilderTest extends \PHPUnit_Framework_TestCase
     private function getSummary()
     {
         $detiail1 = new SummaryDetail();
-        $detiail1->setTipoDoc('03')
-            ->setSerie('B001')
-            ->setDocInicio('1')
-            ->setDocFin('4')
+        $detiail1->setTipoDoc('07')
+            ->setSerieNro('B001-12')
+            ->setClienteTipo('1')
+            ->setClienteNro('44556677')
+            ->setPercepcion((new SummaryPerception())
+                ->setCodReg('01')
+                ->setTasa(2)
+                ->setMtoBase(100)
+                ->setMto(2)
+                ->setMtoTotal(102))
+            ->setEstado('1')
+            ->setDocReferencia((new Document())
+                ->setTipoDoc('03')
+                ->setNroDoc('B001-1'))
             ->setTotal(100)
             ->setMtoOperGravadas(20.555)
             ->setMtoOperInafectas(24.4)
             ->setMtoOperExoneradas(50)
             ->setMtoOtrosTributos(12.32)
-            ->setMtoDescuentos(5)
-            ->setMtoIGV(3.6);
+            ->setMtoIGV(3.6)
+            ->setMtoISC(0);
 
         $detiail2 = new SummaryDetail();
         $detiail2->setTipoDoc('07')
-            ->setSerie('BB01')
-            ->setDocInicio('4')
-            ->setDocFin('8')
+            ->setSerieNro('B001-22')
+            ->setClienteTipo('1')
+            ->setClienteNro('55667733')
+            ->setEstado('1')
             ->setTotal(200)
+            ->setMtoOtrosCargos(1)
             ->setMtoOperGravadas(40)
             ->setMtoOperExoneradas(30)
             ->setMtoOperInafectas(120)
+            ->setMtoOperGratuitas(10)
             ->setMtoIGV(7.2)
             ->setMtoISC(2.8);
 
