@@ -40,9 +40,8 @@ trait FeBuilderTrait
           Note::class => NoteBuilder::class,
           Summary::class => SummaryBuilder::class,
           Voided::class => VoidedBuilder::class,
-          SummaryV2::class => SummaryV2Builder::class,
         ];
-        $builder = new $builders[$className](['cache' => sys_get_temp_dir()]);
+        $builder = new $builders[$className](['cache' => false]);
 
         /**@var $builder BuilderInterface */
         return $builder;
