@@ -9,6 +9,7 @@
 namespace Tests\Greenter\Xml\Builder;
 
 use Greenter\Model\Client\Client;
+use Greenter\Model\Sale\Document;
 use Greenter\Model\Sale\Legend;
 use Greenter\Model\Sale\Note;
 use Greenter\Model\Sale\SaleDetail;
@@ -103,6 +104,10 @@ class FeNoteBuilderTest extends \PHPUnit_Framework_TestCase
             ->setFechaEmision(new \DateTime())
             ->setTipoMoneda('PEN')
             ->setClient($client)
+            ->setGuias([(new Document())
+                ->setTipoDoc('09')
+                ->setNroDoc('T001-1')
+            ])
             ->setMtoOperGravadas(200)
             ->setMtoOperExoneradas(0)
             ->setMtoOperInafectas(0)
