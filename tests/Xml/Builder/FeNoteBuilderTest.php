@@ -112,6 +112,7 @@ class FeNoteBuilderTest extends \PHPUnit_Framework_TestCase
 
         $detail1 = new SaleDetail();
         $detail1->setCodProducto('C023')
+            ->setCodProdSunat('0000')
             ->setCodUnidadMedida('NIU')
             ->setCtdUnidadItem(2)
             ->setDesItem('PROD 1')

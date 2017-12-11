@@ -3,8 +3,7 @@
            xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
            xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
            xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
-           xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2"
-           xmlns:sac="urn:sunat:names:specification:ubl:peru:schema:xsd:SunatAggregateComponents-1">
+           xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2">
     <ext:UBLExtensions>
         <ext:UBLExtension>
             <ext:ExtensionContent></ext:ExtensionContent>
@@ -16,9 +15,6 @@
     <cbc:IssueDate>{{ doc.fechaEmision|date('Y-m-d') }}</cbc:IssueDate>
     <cbc:IssueTime>{{ doc.fechaEmision|date('H:i:s') }}</cbc:IssueTime>
     <cbc:DocumentCurrencyCode>{{ doc.tipoMoneda }}</cbc:DocumentCurrencyCode>
-    <!--
-    <cbc:Note languageLocaleID="3000">0501002017062500125</cbc:Note>
-    -->
     <cac:DiscrepancyResponse>
         <cbc:ReferenceID>{{ doc.numDocfectado }}</cbc:ReferenceID>
         <cbc:ResponseCode>{{ doc.codMotivo }}</cbc:ResponseCode>
@@ -30,6 +26,14 @@
             <cbc:DocumentTypeCode>{{ doc.tipDocAfectado }}</cbc:DocumentTypeCode>
         </cac:InvoiceDocumentReference>
     </cac:BillingReference>
+    {% if doc.guias %}
+        {% for guia in doc.guias %}
+            <cac:DespatchDocumentReference>
+                <cbc:ID>{{ guia.nroDoc }}</cbc:ID>
+                <cbc:DocumentTypeCode>{{ guia.tipoDoc }}</cbc:DocumentTypeCode>
+            </cac:DespatchDocumentReference>
+        {% endfor %}
+    {% endif %}
     {% if doc.relDocs %}
         {% for rel in doc.relDocs %}
             <cac:AdditionalDocumentReference>
@@ -243,9 +247,11 @@
                 <cac:SellersItemIdentification>
                     <cbc:ID>{{ detail.codProducto }}</cbc:ID>
                 </cac:SellersItemIdentification>
-                {#<cac:CommodityClassification>#}
-                {#<cbc:ItemClassificationCode listID="UNSPSC" listAgencyName="GS1 US" listName="Item Classification">{{ detail.codSunat }}</cbc:ItemClassificationCode>#}
-                {#</cac:CommodityClassification>#}
+                {% if detail.codProdSunat %}
+                    <cac:CommodityClassification>
+                        <cbc:ItemClassificationCode listID="UNSPSC" listAgencyName="GS1 US" listName="Item Classification">{{ detail.codProdSunat }}</cbc:ItemClassificationCode>
+                    </cac:CommodityClassification>
+                {% endif %}
             </cac:Item>
             <cac:Price>
                 <cbc:PriceAmount currencyID="{{ doc.tipoMoneda }}">{{ detail.mtoValorUnitario|n_format }}</cbc:PriceAmount>
