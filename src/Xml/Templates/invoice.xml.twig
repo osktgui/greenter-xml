@@ -202,7 +202,7 @@
     {% endif %}
     {% if doc.sumDsctoGlobal %}
         <cac:AllowanceCharge>
-            <cbc:ChargeIndicator>False</cbc:ChargeIndicator>
+            <cbc:ChargeIndicator>false</cbc:ChargeIndicator>
             <cbc:AllowanceChargeReasonCode>00</cbc:AllowanceChargeReasonCode>
             {#<cbc:MultiplierFactorNumeric>{{ descPercent: 0.12 }}</cbc:MultiplierFactorNumeric>#}
             <cbc:Amount currencyID="{{ doc.tipoMoneda }}">{{ doc.sumDsctoGlobal }}</cbc:Amount>
