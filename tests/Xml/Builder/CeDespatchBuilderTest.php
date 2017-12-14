@@ -30,7 +30,7 @@ class CeDespatchBuilderTest extends \PHPUnit_Framework_TestCase
         $xml = $this->build($despatch);
 
         $this->assertNotEmpty($xml);
-        // file_put_contents('guia.xml', $xml);
+//         file_put_contents('guia.xml', $xml);
     }
 
     public function testDespatchFilename()
@@ -58,19 +58,20 @@ class CeDespatchBuilderTest extends \PHPUnit_Framework_TestCase
      */
     private function getDespatch()
     {
-        $client = new Client();
-        $client->setTipoDoc('6')
-            ->setNumDoc('20000000001')
-            ->setRznSocial('EMPRESA (<!-- --> />) 1');
-
         list($baja, $rels, $envio) = $this->getExtras();
         $despatch = new Despatch();
         $despatch->setTipoDoc('09')
             ->setSerie('T001')
             ->setCorrelativo('123')
             ->setFechaEmision(new \DateTime())
-            ->setDestinatario($client)
-            ->setTercero($client)
+            ->setDestinatario((new Client())
+                ->setTipoDoc('6')
+                ->setNumDoc('20000000002')
+                ->setRznSocial('DESTINATARIO SAC'))
+            ->setTercero((new Client())
+                ->setTipoDoc('6')
+                ->setNumDoc('20000000003')
+                ->setRznSocial('PROVEEDOR SAC'))
             ->setObservacion('NOTA GUIA')
             ->setDocBaja($baja)
             ->setRelDoc($rels)
@@ -81,7 +82,8 @@ class CeDespatchBuilderTest extends \PHPUnit_Framework_TestCase
         $detail->setCantidad(2)
             ->setUnidad('ZZ')
             ->setDescripcion('PROD 1')
-            ->setCodigo('PROD1');
+            ->setCodigo('PROD1')
+            ->setCodProdSunat('2312312312');
 
         $despatch->setDetails([$detail]);
 
@@ -98,12 +100,8 @@ class CeDespatchBuilderTest extends \PHPUnit_Framework_TestCase
             ->setNroDoc('T001-00001');
 
         $rel = new Document();
-        $rel->setTipoDoc('09')
-            ->setNroDoc('T001-00001');
-
-        $rel2 = new Document();
-        $rel2->setTipoDoc('09')
-            ->setNroDoc('T001-00002');
+        $rel->setTipoDoc('06')
+            ->setNroDoc('F001-00001');
 
         $dir = new Direction('', '');
         $dir->setDireccion('AV ITALIA');
@@ -124,7 +122,7 @@ class CeDespatchBuilderTest extends \PHPUnit_Framework_TestCase
             ->setPartida($dir)
             ->setTransportista($this->getTransportist());
 
-        return [$baja, [$rel, $rel2], $envio];
+        return [$baja, $rel, $envio];
     }
 
     private function getTransportist()
