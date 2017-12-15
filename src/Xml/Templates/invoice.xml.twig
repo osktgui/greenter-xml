@@ -47,11 +47,6 @@
             </cac:AdditionalDocumentReference>
         {% endfor %}
     {% endif %}
-    {% if doc.guiaEmbebida %}
-    <cac:Delivery>
-        {% include 'embededDespatch.xml.twig' with {'desp': doc.guiaEmbebida} only %}
-    </cac:Delivery>
-    {% endif %}
     {% set emp = doc.company %}
     <cac:Signature>
         <cbc:ID>{{ emp.ruc }}</cbc:ID>
@@ -75,12 +70,22 @@
             <cac:PartyName>
                 <cbc:Name>{{ emp.nombreComercial }}</cbc:Name>
             </cac:PartyName>
+            {% set addr = emp.address %}
+            <cac:PostalAddress>
+                <cbc:ID>{{ addr.ubigueo }}</cbc:ID>
+                <cbc:StreetName><![CDATA[{{ addr.direccion|raw }}]]></cbc:StreetName>
+                <cbc:CityName>{{ addr.departamento }}</cbc:CityName>
+                <cbc:CountrySubentity>{{ addr.provincia }}</cbc:CountrySubentity>
+                <cbc:District>{{ addr.distrito }}</cbc:District>
+                <cac:Country>
+                    <cbc:IdentificationCode>{{ addr.codigoPais }}</cbc:IdentificationCode>
+                </cac:Country>
+            </cac:PostalAddress>
             <cac:PartyTaxScheme>
                 <cbc:RegistrationName><![CDATA[{{ emp.razonSocial|raw }}]]></cbc:RegistrationName>
                 <cbc:CompanyID schemeID="6" schemeName="SUNAT:Identificador de Documento de Identidad" schemeAgencyName="PE:SUNAT" schemeURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo06">{{ emp.ruc }}</cbc:CompanyID>
-                {% set addr = emp.address %}
                 <cac:RegistrationAddress>
-                    <cbc:AddressTypeCode>{% if addr.ubigueo %}{{ addr.ubigueo }}{% else %}0000{% endif %}</cbc:AddressTypeCode>
+                    <cbc:AddressTypeCode>0000</cbc:AddressTypeCode>
                 </cac:RegistrationAddress>
                 <cac:TaxScheme>
                     <cbc:ID>-</cbc:ID>
@@ -100,6 +105,19 @@
             </cac:PartyTaxScheme>
         </cac:Party>
     </cac:AccountingCustomerParty>
+    {% if doc.guiaEmbebida %}
+        <cac:Delivery>
+            {% include 'embededDespatch.xml.twig' with {'desp': doc.guiaEmbebida} only %}
+        </cac:Delivery>
+    {% endif %}
+    {% if doc.detraccion %}
+        {% set detr = doc.detraccion %}
+        <cac:PaymentTerms>
+            <cbc:ID schemeName="SUNAT:Codigo de detraccion" schemeAgencyName="PE:SUNAT" schemeURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo54">{{ detr.code }}</cbc:ID>
+            <cbc:PaymentPercent>{{ detr.percent|n_format}}</cbc:PaymentPercent>
+            <cbc:Amount currencyID="{{ doc.tipoMoneda }}">{{ detr.mount }}</cbc:Amount>
+        </cac:PaymentTerms>
+    {% endif %}
     {% if doc.anticipos %}
         {% for ant in doc.anticipos %}
             <cac:PrepaidPayment>
@@ -108,6 +126,15 @@
                 <cbc:InstructionID schemeID="6">{{ emp.ruc }}</cbc:InstructionID>
             </cac:PrepaidPayment>
         {% endfor %}
+    {% endif %}
+    {% if doc.sumDsctoGlobal %}
+        <cac:AllowanceCharge>
+            <cbc:ChargeIndicator>false</cbc:ChargeIndicator>
+            <cbc:AllowanceChargeReasonCode>00</cbc:AllowanceChargeReasonCode>
+            {#<cbc:MultiplierFactorNumeric>{{ descPercent: 0.12 }}</cbc:MultiplierFactorNumeric>#}
+            <cbc:Amount currencyID="{{ doc.tipoMoneda }}">{{ doc.sumDsctoGlobal }}</cbc:Amount>
+            {#<cbc:BaseAmount currencyID="{{ doc.tipoMoneda }}">1439.48</cbc:BaseAmount>#}
+        </cac:AllowanceCharge>
     {% endif %}
     <cac:TaxTotal>
         <cbc:TaxAmount currencyID="{{ doc.tipoMoneda }}">{{ doc.mtoIGV|n_format }}</cbc:TaxAmount>
@@ -200,33 +227,16 @@
             </cac:TaxSubtotal>
         </cac:TaxTotal>
     {% endif %}
-    {% if doc.sumDsctoGlobal %}
-        <cac:AllowanceCharge>
-            <cbc:ChargeIndicator>false</cbc:ChargeIndicator>
-            <cbc:AllowanceChargeReasonCode>00</cbc:AllowanceChargeReasonCode>
-            {#<cbc:MultiplierFactorNumeric>{{ descPercent: 0.12 }}</cbc:MultiplierFactorNumeric>#}
-            <cbc:Amount currencyID="{{ doc.tipoMoneda }}">{{ doc.sumDsctoGlobal }}</cbc:Amount>
-            {#<cbc:BaseAmount currencyID="{{ doc.tipoMoneda }}">1439.48</cbc:BaseAmount>#}
-        </cac:AllowanceCharge>
-    {% endif %}
-    {% if doc.detraccion %}
-        {% set detr = doc.detraccion %}
-        <cac:PaymentTerms>
-            <cbc:ID schemeName="SUNAT:Codigo de detraccion" schemeAgencyName="PE:SUNAT" schemeURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo54">{{ detr.code }}</cbc:ID>
-            <cbc:PaymentPercent>{{ detr.percent|n_format}}</cbc:PaymentPercent>
-            <cbc:Amount currencyID="{{ doc.tipoMoneda }}">{{ detr.mount }}</cbc:Amount>
-        </cac:PaymentTerms>
-    {% endif %}
     <cac:LegalMonetaryTotal>
         {#<cbc:LineExtensionAmount currencyID="PEN">{{ doc.subtotal }}</cbc:LineExtensionAmount>#}
         {#<cbc:TaxInclusiveAmount currencyID="PEN">{{ doc.vconImpuestos }}</cbc:TaxInclusiveAmount>#}
-        {% if doc.totalAnticipos %}<cbc:PrepaidAmount currencyID="{{ doc.tipoMoneda }}">{{ doc.totalAnticipos|n_format }}</cbc:PrepaidAmount>{% endif %}
         <cbc:AllowanceTotalAmount currencyID="{{ doc.tipoMoneda }}">{{ doc.sumDsctoGlobal|default(0)|n_format }}</cbc:AllowanceTotalAmount>
         {% if doc.perception %}
             <cbc:ChargeTotalAmount currencyID="{{ doc.tipoMoneda }}">{{ doc.perception.mto|n_format }}</cbc:ChargeTotalAmount>
         {% else %}
             <cbc:ChargeTotalAmount currencyID="{{ doc.tipoMoneda }}">{{ doc.sumOtrosCargos|default(0)|n_format }}</cbc:ChargeTotalAmount>
         {% endif %}
+        {% if doc.totalAnticipos %}<cbc:PrepaidAmount currencyID="{{ doc.tipoMoneda }}">{{ doc.totalAnticipos|n_format }}</cbc:PrepaidAmount>{% endif %}
         <cbc:PayableAmount currencyID="{{ doc.tipoMoneda }}">{{ doc.mtoImpVenta|n_format }}</cbc:PayableAmount>
     </cac:LegalMonetaryTotal>
     {% for detail in doc.details %}
@@ -249,10 +259,23 @@
                     </cac:AlternativeConditionPrice>
                 </cac:PricingReference>
             {% endif %}
-            <cac:AllowanceCharge>
-                <cbc:ChargeIndicator>false</cbc:ChargeIndicator>
-                <cbc:Amount currencyID="{{ doc.tipoMoneda }}">0</cbc:Amount>
-            </cac:AllowanceCharge>
+            {% if detail.mtoDsctoItem %}
+                <cac:AllowanceCharge>
+                    <cbc:ChargeIndicator>false</cbc:ChargeIndicator>
+                    <cbc:AllowanceChargeReasonCode>00</cbc:AllowanceChargeReasonCode>
+                    <cbc:Amount currencyID="{{ doc.tipoMoneda }}">{{ detail.mtoDsctoItem|n_format }}</cbc:Amount>
+                </cac:AllowanceCharge>
+            {% endif %}
+            {% if detail.otroCargo %}
+                {% set otCargo = detail.otroCargo %}
+                <cac:AllowanceCharge>
+                    <cbc:ChargeIndicator>true</cbc:ChargeIndicator>
+                    <cbc:AllowanceChargeReasonCode>{{ otCargo.code }}</cbc:AllowanceChargeReasonCode>
+                    {% if otCargo.factor %}<cbc:MultiplierFactorNumeric>{{ otCargo.factor|n_format }}</cbc:MultiplierFactorNumeric>{% endif %}
+                    <cbc:Amount currencyID="{{ doc.tipoMoneda }}">{{ otCargo.mto|n_format }}</cbc:Amount>
+                    {% if otCargo.mtoBase %}<cbc:BaseAmount currencyID="{{ doc.tipoMoneda }}">{{ otCargo.mtoBase|n_format }}</cbc:BaseAmount>{% endif %}
+                </cac:AllowanceCharge>
+            {% endif %}
             {% if detail.mtoIgvItem %}
                 {% set igv = detail.mtoIgvItem|n_format %}
                 <cac:TaxTotal>
@@ -294,16 +317,26 @@
                 <cac:SellersItemIdentification>
                     <cbc:ID>{{ detail.codProducto }}</cbc:ID>
                 </cac:SellersItemIdentification>
-            </cac:Item>
-            <cac:Item>
-                <cbc:Description><![CDATA[{{ detail.desItem|raw }}]]></cbc:Description>
-                <cac:SellersItemIdentification>
-                    <cbc:ID>{{ detail.codProducto }}</cbc:ID>
-                </cac:SellersItemIdentification>
                 {% if detail.codProdSunat %}
                     <cac:CommodityClassification>
                         <cbc:ItemClassificationCode listID="UNSPSC" listAgencyName="GS1 US" listName="Item Classification">{{ detail.codProdSunat }}</cbc:ItemClassificationCode>
                     </cac:CommodityClassification>
+                {% endif %}
+                {% if detail.atributos %}
+                    {% for atr in detail.atributos %}
+                        <cac:AdditionalItemProperty >
+                            <cbc:Name>{{ atr.name }}</cbc:Name>
+                            <cbc:NameCode listName="SUNAT :Identificador de la propiedad del ítem" listAgencyName="PE:SUNAT">{{ atr.code }}</cbc:NameCode>
+                            {% if atr.value %}<cbc:Value>{{ atr.value }}</cbc:Value>{% endif %}
+                            {% if atr.fecInicio or atr.fecFin or atr.duracion %}
+                                <cac:UsabilityPeriod>
+                                    {% if atr.fecInicio %}<cbc:StartDate>{{ atr.fecInicio|date('Y-m-d') }}</cbc:StartDate>{% endif %}
+                                    {% if atr.fecFin %}<cbc:EndDate>{{ atr.fecFin|date('Y-m-d') }}</cbc:EndDate>{% endif %}
+                                    {% if atr.duracion %}<cbc:DurationMeasure unitCode="DAY">{{ atr.duracion }}</cbc:DurationMeasure>{% endif %}
+                                </cac:UsabilityPeriod>
+                            {% endif %}
+                        </cac:AdditionalItemProperty>
+                    {% endfor %}
                 {% endif %}
             </cac:Item>
             <cac:Price>

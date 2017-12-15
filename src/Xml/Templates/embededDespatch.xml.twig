@@ -1,4 +1,34 @@
 <cac:Shipment>
+    <cbc:ID>1</cbc:ID>
+    <cbc:HandlingCode>{{ desp.codTraslado }}</cbc:HandlingCode>
+    <cbc:GrossWeightMeasure unitCode="{{ desp.undPesoBruto }}">{{ desp.pesoBruto|n_format }}</cbc:GrossWeightMeasure>
+    <cac:ShipmentStage>
+        <cbc:TransportModeCode>{{ desp.modTraslado }}</cbc:TransportModeCode>
+        {% if desp.fecTraslado %}
+            <cac:TransitPeriod>
+                <cbc:StartDate>{{ desp.fecTraslado|date('Y-m-d') }}</cbc:StartDate>
+            </cac:TransitPeriod>
+        {% endif %}
+        <cac:CarrierParty>
+            <cac:PartyLegalEntity>
+                <cbc:RegistrationName><![CDATA[{{ desp.transportista.rznSocial|raw }}]]></cbc:RegistrationName>
+                <cbc:CompanyID schemeID="{{ desp.transportista.tipoDoc }}" schemeName="SUNAT:Identificador de Documento de Identidad" schemeAgencyName="PE:SUNAT" schemeURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo06">{{ desp.transportista.numDoc }}</cbc:CompanyID>
+            </cac:PartyLegalEntity>
+        </cac:CarrierParty>
+        <cac:TransportMeans>
+            {% if desp.nroConstanciaVehiculo %}<cbc:RegistrationNationalityID>{{ desp.nroConstanciaVehiculo }}</cbc:RegistrationNationalityID>{% endif %}
+            <cac:RoadTransport>
+                <cbc:LicensePlateID>{{ desp.transpPlaca }}</cbc:LicensePlateID>
+            </cac:RoadTransport>
+        </cac:TransportMeans>
+        {% if desp.conductores %}
+            {% for conductor in  desp.conductores %}
+                <cac:DriverPerson>
+                    <cbc:ID schemeID="{{ conductor.tipoDoc }}" schemeName="SUNAT:Indicador de Tipo de Documento de Identidad" schemeAgencyName="PE:SUNAT" schemeURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo06">{{ conductor.numDoc }}</cbc:ID>
+                </cac:DriverPerson>
+            {% endfor %}
+        {% endif %}
+    </cac:ShipmentStage>
     <cac:Delivery>
         <cac:DeliveryAddress>
             <cbc:CountrySubentityCode>{{ desp.llegada.ubigueo }}</cbc:CountrySubentityCode>
@@ -7,43 +37,15 @@
             </cac:AddressLine>
         </cac:DeliveryAddress>
     </cac:Delivery>
+    <cac:TransportHandlingUnit>
+        <cac:TransportEquipment>
+            <cbc:ID>{{ desp.transpPlaca }}</cbc:ID>
+        </cac:TransportEquipment>
+    </cac:TransportHandlingUnit>
     <cac:OriginAddress>
         <cbc:CountrySubentityCode>{{ desp.partida.ubigueo }}</cbc:CountrySubentityCode>
         <cac:AddressLine>
             <cbc:Line><![CDATA[{{ desp.partida.direccion|raw }}]]></cbc:Line>
         </cac:AddressLine>
     </cac:OriginAddress>
-    <cac:ShipmentStage>
-        <cac:CarrierParty>
-            <cac:PartyLegalEntity>
-                <cbc:CompanyID schemeID="{{ desp.transportista.tipoDoc }}" schemeName="SUNAT:Identificador de Documento de Identidad" schemeAgencyName="PE:SUNAT" schemeURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo06">{{ desp.transportista.numDoc }}</cbc:CompanyID>
-                <cbc:RegistrationName><![CDATA[{{ desp.transportista.rznSocial|raw }}]]></cbc:RegistrationName>
-            </cac:PartyLegalEntity>
-        </cac:CarrierParty>
-        {% if desp.conductores %}
-            {% for conductor in  desp.conductores %}
-                <cac:DriverPerson>
-                    <cbc:ID schemeID="{{ conductor.tipoDoc }}" schemeName="SUNAT:Indicador de Tipo de Documento de Identidad" schemeAgencyName="PE:SUNAT" schemeURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo06">{{ desp.conductor.numDoc }}</cbc:ID>
-                </cac:DriverPerson>
-            {% endfor %}
-        {% endif %}
-        <cac:TransportMeans>
-            <cac:RoadTransport>
-                <cbc:LicensePlateID>{{ desp.transpPlaca }}</cbc:LicensePlateID>
-            </cac:RoadTransport>
-            {% if desp.nroConstanciaVehiculo %}<cbc:RegistrationNationalityID>{{ desp.nroConstanciaVehiculo }}</cbc:RegistrationNationalityID>{% endif %}
-        </cac:TransportMeans>
-        {% if desp.fecTraslado %}
-            <cac:TransitPeriod>
-                <cbc:StartDate>{{ desp.fecTraslado|date('Y-m-d') }}</cbc:StartDate>
-            </cac:TransitPeriod>
-        {% endif %}
-        <cbc:TransportModeCode>{{ desp.modTraslado }}</cbc:TransportModeCode>
-    </cac:ShipmentStage>
-    <cac:TransportHandlingUnit>
-        <cac:TransportEquipment>
-            <cbc:ID>{{ desp.transpPlaca }}</cbc:ID>
-        </cac:TransportEquipment>
-    </cac:TransportHandlingUnit>
-    <cbc:GrossWeightMeasure unitCode="{{ desp.undPesoBruto }}">{{ desp.pesoBruto|n_format }}</cbc:GrossWeightMeasure>
 </cac:Shipment>

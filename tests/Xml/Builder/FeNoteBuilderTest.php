@@ -47,11 +47,7 @@ class FeNoteBuilderTest extends \PHPUnit_Framework_TestCase
         $doc = new \DOMDocument();
         $doc->loadXML($xml);
 
-        $childs = $doc->documentElement->getElementsByTagNameNS('urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2','ExtensionContent');
-        if ($childs->length > 0) {
-            $element = $doc->createElementNS('urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2','cbc:AccountID', 1);
-            $childs->item(0)->appendChild($element);
-        }
+        $this->createExtensionContent($doc);
         $success = $doc->schemaValidate(__DIR__ . '/../../Resources/xsd2.1/maindoc/UBL-DebitNote-2.1.xsd');
         $this->assertTrue($success);
 //         file_put_contents('notedb.xml', $xml);

@@ -10,10 +10,12 @@ namespace Tests\Greenter\Xml\Builder;
 
 use Greenter\Model\Client\Client;
 use Greenter\Model\Despatch\Direction;
+use Greenter\Model\Sale\Charge;
 use Greenter\Model\Sale\Detraction;
 use Greenter\Model\Sale\Document;
 use Greenter\Model\Sale\EmbededDespatch;
 use Greenter\Model\Sale\Invoice;
+use Greenter\Model\Sale\ItemAttribute;
 use Greenter\Model\Sale\Legend;
 use Greenter\Model\Sale\Prepayment;
 use Greenter\Model\Sale\SaleDetail;
@@ -37,7 +39,13 @@ class FeInvoiceBuilderTest extends \PHPUnit_Framework_TestCase
         $xml = $this->build($invoice);
         $event = $stopwatch->stop('invoice');
 
-        // file_put_contents('x.xml', $xml);
+//        file_put_contents('x.xml', $xml);
+        $doc = new \DOMDocument();
+        $doc->loadXML($xml);
+        $this->createExtensionContent($doc);
+        $success = $doc->schemaValidate(__DIR__ . '/../../Resources/xsd2.1/maindoc/UBL-Invoice-2.1.xsd');
+
+        $this->assertTrue($success);
         $this->assertNotEmpty($xml);
         $this->assertInvoiceXml($xml);
 
@@ -114,6 +122,7 @@ class FeInvoiceBuilderTest extends \PHPUnit_Framework_TestCase
                 ->setMount(2228.3)
                 ->setPercent(9)
             )->setGuiaEmbebida((new EmbededDespatch())
+                ->setCodTraslado('02')
                 ->setLlegada(new Direction('070101', 'AV. REPUBLICA DE ARGENTINA N? 2976 URB.'))
                 ->setPartida(new Direction('070101', 'AV OSCAR R BENAVIDES No 5915  PE'))
                 ->setTransportista((new Client())
@@ -177,6 +186,27 @@ class FeInvoiceBuilderTest extends \PHPUnit_Framework_TestCase
             ->setMtoValorVenta(100)
             ->setMtoValorUnitario(50)
             ->setMtoPrecioUnitario(56)
+            ->setOtroCargo((new Charge())
+            ->setCode('50')
+            ->setFactor(0.10)
+            ->setMto(44.82)
+            ->setMtoBase(448.20))
+            ->setAttributos([(new ItemAttribute())
+                ->setCode('3002')
+                ->setName('Detracciones: Recursos Hidrobiológicos - Nombre y Matrícula de la Embarcación')
+                ->setValue('AADD'),
+                (new ItemAttribute())
+                ->setCode('3005')
+                ->setName('Detracciones: Recursos Hidrobiológicos - Fecha de descarga')
+                ->setFecInicio(new \DateTime()),
+                (new ItemAttribute())
+                    ->setCode('4004')
+                    ->setName('Beneficio Hospedajes: Fecha de Salida del Establecimiento')
+                    ->setFecFin(new \DateTime('+2days')),
+                (new ItemAttribute())
+                    ->setCode('4005')
+                    ->setName('Beneficio Hospedajes: Número de Días de Permanencia')
+                    ->setDuracion(5)])
             , (new SaleDetail())
             ->setCodProducto('C02')
             ->setCodUnidadMedida('NIU')
