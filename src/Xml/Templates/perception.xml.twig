@@ -39,11 +39,12 @@
 		<cac:PartyName>
 			<cbc:Name><![CDATA[{{ emp.nombreComercial|raw }}]]></cbc:Name>
 		</cac:PartyName>
+        {% set addr = emp.address %}
 		<cac:PostalAddress>
-			<cbc:ID>{{ emp.address.ubigueo }}</cbc:ID>
-			<cbc:StreetName>{{ emp.address.direccion }}</cbc:StreetName>
+			<cbc:ID>{{ addr.ubigueo }}</cbc:ID>
+			<cbc:StreetName>{{ addr.direccion }}</cbc:StreetName>
 			<cac:Country>
-				<cbc:IdentificationCode>{{ emp.address.codigoPais }}</cbc:IdentificationCode>
+				<cbc:IdentificationCode>{{ addr.codigoPais|default('PE') }}</cbc:IdentificationCode>
 			</cac:Country>
 		</cac:PostalAddress>
 		<cac:PartyLegalEntity>

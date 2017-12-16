@@ -110,7 +110,7 @@
                 <cbc:CountrySubentity>{{ addr.provincia }}</cbc:CountrySubentity>
                 <cbc:District>{{ addr.distrito }}</cbc:District>
                 <cac:Country>
-                    <cbc:IdentificationCode>{{ addr.codigoPais }}</cbc:IdentificationCode>
+                    <cbc:IdentificationCode>{{ addr.codigoPais|default('PE') }}</cbc:IdentificationCode>
                 </cac:Country>
             </cac:PostalAddress>
             <cac:PartyLegalEntity>
