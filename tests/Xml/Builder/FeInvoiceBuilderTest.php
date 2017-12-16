@@ -191,7 +191,7 @@ class FeInvoiceBuilderTest extends \PHPUnit_Framework_TestCase
             ->setFactor(0.10)
             ->setMto(44.82)
             ->setMtoBase(448.20))
-            ->setAttributos([(new ItemAttribute())
+            ->setAtributos([(new ItemAttribute())
                 ->setCode('3002')
                 ->setName('Detracciones: Recursos Hidrobiológicos - Nombre y Matrícula de la Embarcación')
                 ->setValue('AADD'),
