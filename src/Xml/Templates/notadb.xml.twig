@@ -21,7 +21,7 @@
     <cac:DiscrepancyResponse>
         <cbc:ReferenceID>{{ doc.numDocfectado }}</cbc:ReferenceID>
         <cbc:ResponseCode>{{ doc.codMotivo }}</cbc:ResponseCode>
-        <cbc:Description><![CDATA[{{ doc.desMotivo }}]]></cbc:Description>
+        <cbc:Description><![CDATA[{{ doc.desMotivo|raw }}]]></cbc:Description>
     </cac:DiscrepancyResponse>
     <cac:BillingReference>
         <cac:InvoiceDocumentReference>

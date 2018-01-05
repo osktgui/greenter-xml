@@ -31,7 +31,9 @@ class FeNoteBuilderTest extends \PHPUnit_Framework_TestCase
 
         $doc = new \DOMDocument();
         $doc->loadXML($xml);
-        $success = $doc->schemaValidate(__DIR__ . '/../../Resources/xsd/maindoc/UBLPE-CreditNote-1.0.xsd');
+
+        $this->createExtensionContent($doc);
+        $success = $doc->schemaValidate(__DIR__ . '/../../Resources/xsd2.1/maindoc/UBL-CreditNote-2.1.xsd');
 
         $this->assertTrue($success);
 //         file_put_contents('notecr.xml', $xml);
